@@ -10,7 +10,10 @@ const player1 = {
   ],
   attack: function () {
     console.log(`${this.name} Fight...`);
-  }
+  },
+  changeHP: changeHP,
+  elHP: elHP,
+  renderHP: renderHP
 };
 
 const player2 = {
@@ -25,7 +28,10 @@ const player2 = {
   ],
   attack: function () {
     console.log(`${this.name} Fight...`);
-  }
+  },
+  changeHP: changeHP,
+  elHP: elHP,
+  renderHP: renderHP
 };
 
 const players = [
@@ -82,17 +88,17 @@ function setupArena() {
   $arenas.appendChild(createPlayer(player1));
   $arenas.appendChild(createPlayer(player2));
 
-  handleArenaButtonClick($arenas);
+  handleRandomButtonClick($arenas);
 }
 
-function handleArenaButtonClick($arenas) {
-  const $arenaButton = document.querySelector('.arenas .button');
+function handleRandomButtonClick($arenas) {
+  const $randomButton = document.querySelector('[data-action="attack-random"]');
 
-  if (!$arenaButton) {
+  if (!$randomButton) {
     return null;
   }
 
-  $arenaButton.addEventListener('click', function () {
+  $randomButton.addEventListener('click', function () {
     const randomPlayerIndex = generateRandomNumber(0, players.length - 1);
 
     changePlayerHP(players[randomPlayerIndex]);
@@ -100,31 +106,58 @@ function handleArenaButtonClick($arenas) {
     const gameWinner = checkGameWinner();
 
     if (gameWinner) {
-      setArenaButtonDisabled($arenaButton);
+      setButtonDisabled($randomButton);
       $arenas.appendChild(makePlayerWinsLabel(gameWinner));
+      $arenas.appendChild(createReloadButton());
     }
   });
 }
 
-function setArenaButtonDisabled($arenaButton) {
-  $arenaButton.disabled = true;
-  $arenaButton.style.opacity = '0.5';
-  $arenaButton.style.cursor = 'not-allowed';
+function setButtonDisabled($button) {
+  $button.disabled = true;
+  $button.style.opacity = '0.5';
+  $button.style.cursor = 'not-allowed';
 }
 
 function changePlayerHP(playerObject) {
-  const $playerLife = document.querySelector(`.player${playerObject.player} .life`);
+  playerObject.changeHP(generateRandomNumber(1, 20));
+  playerObject.renderHP();
+}
 
-  if (!$playerLife) {
+function changeHP(points) {
+  const currentHP = this.hp ?? 100;
+
+  this.hp = currentHP >= points ? currentHP - points : 0;
+}
+
+function elHP() {
+  return document.querySelector(`.player${this.player} .life`);
+}
+
+function renderHP() {
+  const thisElHP = this.elHP();
+
+  if (!thisElHP) {
     return null;
   }
 
-  const lostHP = generateRandomNumber(1, 20);
-  const currentPlayerHP = playerObject.hp ?? 100;
-  const updatedPlayerHP = currentPlayerHP >= lostHP ? currentPlayerHP - lostHP : 0;
+  thisElHP.style.width = `${this.hp}%`;
+}
 
-  playerObject.hp = updatedPlayerHP;
-  $playerLife.style.width = `${updatedPlayerHP}%`;
+function createReloadButton() {
+  const $buttonContainer = createDOMElement('div', 'reloadWrap');
+  const $button = createDOMElement('button', 'button');
+
+  $button.innerText = 'Restart';
+  $button.setAttribute('data-action', 'game-reload');
+
+  $button.addEventListener('click', function () {
+    window.location.reload();
+  });
+
+  $buttonContainer.appendChild($button);
+
+  return $buttonContainer;
 }
 
 /**
