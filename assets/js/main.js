@@ -1,3 +1,5 @@
+const GAME_DRAW = 'draw';
+
 const player1 = {
   player: 1,
   name: 'Sub-Zero',
@@ -99,16 +101,17 @@ function handleRandomButtonClick($arenas) {
   }
 
   $randomButton.addEventListener('click', function () {
-    const randomPlayerIndex = generateRandomNumber(0, players.length - 1);
+    changePlayerHP(player1);
+    changePlayerHP(player2);
 
-    changePlayerHP(players[randomPlayerIndex]);
-
-    const gameWinner = checkGameWinner();
+    const gameWinner = checkGameOver();
 
     if (gameWinner) {
+      const $gameResultLabel = gameWinner === GAME_DRAW ? makeDrawLabel() : makePlayerWinsLabel(gameWinner);
+
       setButtonDisabled($randomButton);
-      $arenas.appendChild(makePlayerWinsLabel(gameWinner));
       $arenas.appendChild(createReloadButton());
+      $arenas.appendChild($gameResultLabel);
     }
   });
 }
@@ -161,24 +164,36 @@ function createReloadButton() {
 }
 
 /**
- * Returns the winning player if the game is over, or null if the game continues
+ * Returns the winning player if the game is over, string if draw or false if the game continues
  */
-function checkGameWinner() {
-  if (player1.hp === 0) {
+function checkGameOver() {
+  if (player1.hp === 0 && player2.hp !== 0) {
     return player2;
   }
 
-  if (player2.hp === 0) {
+  if (player2.hp === 0 && player1.hp !== 0) {
     return player1;
   }
 
-  return null;
+  if (player1.hp === 0 && player2.hp === 0) {
+    return GAME_DRAW;
+  }
+
+  return false;
 }
 
 function makePlayerWinsLabel(playerObject) {
+  return makeGameStatusLabel(`${playerObject.name} wins!`);
+}
+
+function makeDrawLabel() {
+  return makeGameStatusLabel(GAME_DRAW);
+}
+
+function makeGameStatusLabel(text) {
   const $statusLabel = createDOMElement('div', 'loseTitle');
 
-  $statusLabel.innerText = `${playerObject.name} wins!`;
+  $statusLabel.innerText = text;
 
   return $statusLabel;
 }
