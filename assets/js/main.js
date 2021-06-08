@@ -1,3 +1,5 @@
+const GAME_DRAW = 'draw';
+
 const player1 = {
   player: 1,
   name: 'Sub-Zero',
@@ -10,7 +12,10 @@ const player1 = {
   ],
   attack: function () {
     console.log(`${this.name} Fight...`);
-  }
+  },
+  changeHP: changeHP,
+  elHP: elHP,
+  renderHP: renderHP
 };
 
 const player2 = {
@@ -25,7 +30,10 @@ const player2 = {
   ],
   attack: function () {
     console.log(`${this.name} Fight...`);
-  }
+  },
+  changeHP: changeHP,
+  elHP: elHP,
+  renderHP: renderHP
 };
 
 const players = [
@@ -82,70 +90,110 @@ function setupArena() {
   $arenas.appendChild(createPlayer(player1));
   $arenas.appendChild(createPlayer(player2));
 
-  handleArenaButtonClick($arenas);
+  handleRandomButtonClick($arenas);
 }
 
-function handleArenaButtonClick($arenas) {
-  const $arenaButton = document.querySelector('.arenas .button');
+function handleRandomButtonClick($arenas) {
+  const $randomButton = document.querySelector('[data-action="attack-random"]');
 
-  if (!$arenaButton) {
+  if (!$randomButton) {
     return null;
   }
 
-  $arenaButton.addEventListener('click', function () {
-    const randomPlayerIndex = generateRandomNumber(0, players.length - 1);
+  $randomButton.addEventListener('click', function () {
+    changePlayerHP(player1);
+    changePlayerHP(player2);
 
-    changePlayerHP(players[randomPlayerIndex]);
-
-    const gameWinner = checkGameWinner();
+    const gameWinner = checkGameOver();
 
     if (gameWinner) {
-      setArenaButtonDisabled($arenaButton);
-      $arenas.appendChild(makePlayerWinsLabel(gameWinner));
+      const $gameResultLabel = gameWinner === GAME_DRAW ? makeDrawLabel() : makePlayerWinsLabel(gameWinner);
+
+      setButtonDisabled($randomButton);
+      $arenas.appendChild(createReloadButton());
+      $arenas.appendChild($gameResultLabel);
     }
   });
 }
 
-function setArenaButtonDisabled($arenaButton) {
-  $arenaButton.disabled = true;
-  $arenaButton.style.opacity = '0.5';
-  $arenaButton.style.cursor = 'not-allowed';
+function setButtonDisabled($button) {
+  $button.disabled = true;
+  $button.style.opacity = '0.5';
+  $button.style.cursor = 'not-allowed';
 }
 
 function changePlayerHP(playerObject) {
-  const $playerLife = document.querySelector(`.player${playerObject.player} .life`);
+  playerObject.changeHP(generateRandomNumber(1, 20));
+  playerObject.renderHP();
+}
 
-  if (!$playerLife) {
+function changeHP(points) {
+  const currentHP = this.hp ?? 100;
+
+  this.hp = currentHP >= points ? currentHP - points : 0;
+}
+
+function elHP() {
+  return document.querySelector(`.player${this.player} .life`);
+}
+
+function renderHP() {
+  const thisElHP = this.elHP();
+
+  if (!thisElHP) {
     return null;
   }
 
-  const lostHP = generateRandomNumber(1, 20);
-  const currentPlayerHP = playerObject.hp ?? 100;
-  const updatedPlayerHP = currentPlayerHP >= lostHP ? currentPlayerHP - lostHP : 0;
+  thisElHP.style.width = `${this.hp}%`;
+}
 
-  playerObject.hp = updatedPlayerHP;
-  $playerLife.style.width = `${updatedPlayerHP}%`;
+function createReloadButton() {
+  const $buttonContainer = createDOMElement('div', 'reloadWrap');
+  const $button = createDOMElement('button', 'button');
+
+  $button.innerText = 'Restart';
+  $button.setAttribute('data-action', 'game-reload');
+
+  $button.addEventListener('click', function () {
+    window.location.reload();
+  });
+
+  $buttonContainer.appendChild($button);
+
+  return $buttonContainer;
 }
 
 /**
- * Returns the winning player if the game is over, or null if the game continues
+ * Returns the winning player if the game is over, string if draw or false if the game continues
  */
-function checkGameWinner() {
-  if (player1.hp === 0) {
+function checkGameOver() {
+  if (player1.hp === 0 && player2.hp !== 0) {
     return player2;
   }
 
-  if (player2.hp === 0) {
+  if (player2.hp === 0 && player1.hp !== 0) {
     return player1;
   }
 
-  return null;
+  if (player1.hp === 0 && player2.hp === 0) {
+    return GAME_DRAW;
+  }
+
+  return false;
 }
 
 function makePlayerWinsLabel(playerObject) {
+  return makeGameStatusLabel(`${playerObject.name} wins!`);
+}
+
+function makeDrawLabel() {
+  return makeGameStatusLabel(GAME_DRAW);
+}
+
+function makeGameStatusLabel(text) {
   const $statusLabel = createDOMElement('div', 'loseTitle');
 
-  $statusLabel.innerText = `${playerObject.name} wins!`;
+  $statusLabel.innerText = text;
 
   return $statusLabel;
 }
