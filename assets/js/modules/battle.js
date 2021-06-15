@@ -2,6 +2,36 @@ import chat from './chat.js';
 import utils from './utils.js';
 import rules from './rules.js';
 
+const enemyAttack = () => {
+  const hit = getRandomAttackPosition();
+  const defence = getRandomAttackPosition();
+
+  return makeAttackObject(hit, defence);
+};
+
+const playerAttack = (formValues) => {
+  const hit = formValues.hit !== undefined ? formValues.hit : 0;
+  const defence = formValues.defence !== undefined ? formValues.defence : 0;
+
+  return makeAttackObject(hit, defence);
+};
+
+const getRandomAttackPosition = () => {
+  const randomIndex = utils.generateRandomNumber(0, rules.ATTACK.length - 1);
+
+  return rules.ATTACK[randomIndex];
+};
+
+const makeAttackObject = (hit, defence) => {
+  const hitValue = rules.HIT[hit] ? utils.generateRandomNumber(1, rules.HIT[hit]) : 0;
+
+  return {
+    value: hitValue,
+    hit,
+    defence
+  };
+};
+
 function handlePlayersAttack(player1, player2, formValues) {
   const playerAttackObject = playerAttack(formValues);
   const enemyAttackObject = enemyAttack();
@@ -19,36 +49,6 @@ function handlePlayersAttack(player1, player2, formValues) {
   } else {
     chat.addLog('defence', player2, player1);
   }
-}
-
-function enemyAttack() {
-  const hit = getRandomAttackPosition();
-  const defence = getRandomAttackPosition();
-
-  return makeAttackObject(hit, defence);
-}
-
-function playerAttack(formValues) {
-  const hit = formValues.hit !== undefined ? formValues.hit : 0;
-  const defence = formValues.defence !== undefined ? formValues.defence : 0;
-
-  return makeAttackObject(hit, defence);
-}
-
-function getRandomAttackPosition() {
-  const randomIndex = utils.generateRandomNumber(0, rules.ATTACK.length - 1);
-
-  return rules.ATTACK[randomIndex];
-}
-
-function makeAttackObject(hit, defence) {
-  const hitValue = rules.HIT[hit] ? utils.generateRandomNumber(1, rules.HIT[hit]) : 0;
-
-  return {
-    value: hitValue,
-    hit,
-    defence
-  };
 }
 
 export default { handlePlayersAttack };

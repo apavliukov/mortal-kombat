@@ -43,7 +43,7 @@ const logs = {
 
 const $chat = document.querySelector('.chat');
 
-function addLog(logType, player1Object = null, player2Object = null, lostHP = null) {
+const addLog = (logType, player1Object = null, player2Object = null, lostHP = null) => {
   if (!$chat) {
     return null;
   }
@@ -55,9 +55,11 @@ function addLog(logType, player1Object = null, player2Object = null, lostHP = nu
   }
 
   $chat.insertAdjacentHTML('afterbegin', `<p>${logString}</p>`);
-}
 
-function prepareLogString(logType, player1Object, player2Object, lostHP) {
+  return $chat;
+};
+
+const prepareLogString = (logType, player1Object, player2Object, lostHP) => {
   const logTypeStrings = logs[logType];
   let logString = '';
 
@@ -66,100 +68,98 @@ function prepareLogString(logType, player1Object, player2Object, lostHP) {
   }
 
   const stringTemplate = Array.isArray(logTypeStrings) ? utils.getRandomArrayItem(logTypeStrings) : logTypeStrings;
+  const logObject = { stringTemplate, player1Object, player2Object, lostHP };
 
   switch (logType) {
     case 'start':
-      return prepareLogStart(stringTemplate, player1Object, player2Object);
+      return prepareLogStart(logObject);
     case 'end':
-      return prepareLogEnd(stringTemplate, player1Object, player2Object);
+      return prepareLogEnd(logObject);
     case 'hit':
-      return prepareLogHit(stringTemplate, player1Object, player2Object, lostHP);
+      return prepareLogHit(logObject);
     case 'defence':
-      return prepareLogDefence(stringTemplate, player1Object, player2Object);
+      return prepareLogDefence(logObject);
     case 'draw':
       return prepareLogDraw(stringTemplate);
   }
 
   return logString;
-}
+};
 
-function prepareLogStart(stringTemplate, player1Object, player2Object) {
+const prepareLogStart = (logObject) => {
   let logString = '';
 
-  logString = stringReplacePlayerNames(stringTemplate, player1Object, player2Object);
+  logString = stringReplacePlayerNames(logObject);
   logString = stringReplaceTime(logString);
 
   return logString;
-}
+};
 
-function prepareLogEnd(stringTemplate, player1Object, player2Object) {
-  return stringReplacePlayerNames(stringTemplate, player1Object, player2Object);
-}
+const prepareLogEnd = (logObject) => stringReplacePlayerNames(logObject);
 
-function prepareLogHit(stringTemplate, player1Object, player2Object, lostHP) {
+const prepareLogHit = (logObject) => {
+  const { player2Object, lostHP } = logObject;
   const logTemplateHit = '[time] - [battleText] [lostHP] [totalHP]';
   let logString = '';
 
-  logString = logTemplateHit.replace('[battleText]', stringReplacePlayerNames(stringTemplate, player1Object, player2Object));
+  logString = logTemplateHit.replace('[battleText]', stringReplacePlayerNames(logObject));
   logString = stringReplaceTime(logString);
   logString = stringReplacePlayerLostHP(logString, lostHP);
   logString = stringReplacePlayerTotalHP(logString, player2Object);
 
   return logString;
-}
+};
 
-function prepareLogDefence(stringTemplate, player1Object, player2Object) {
+const prepareLogDefence = (logObject) => {
   const logTemplateDefence = '[time] - [battleText]';
   let logString = '';
 
-  logString = logTemplateDefence.replace('[battleText]', stringReplacePlayerNames(stringTemplate, player1Object, player2Object));
+  logString = logTemplateDefence.replace('[battleText]', stringReplacePlayerNames(logObject));
   logString = stringReplaceTime(logString);
 
   return logString;
-}
+};
 
-function prepareLogDraw(stringTemplate) {
-  return stringTemplate;
-}
+const prepareLogDraw = (stringTemplate) => stringTemplate;
 
-function stringReplaceTime(stringTemplate) {
-  return stringTemplate.replace('[time]', utils.getTimestamp());
-}
+const stringReplaceTime = (stringTemplate) => stringTemplate.replace('[time]', utils.getTimestamp());
 
 /*
   We consider that the first player is always a hitter/winner, the second is a defender/loser
  */
-function stringReplacePlayerNames(stringTemplate, player1Object, player2Object) {
+const stringReplacePlayerNames = (logObject) => {
+  const { stringTemplate, player1Object, player2Object } = logObject;
   const player1Aliases = ['[player1]', '[playerWins]', '[playerKick]'];
   const player2Aliases = ['[player2]', '[playerLose]', '[playerDefence]'];
+  let stringTemplateModified = stringTemplate;
 
   for (let alias of player1Aliases) {
-    stringTemplate = stringTemplate.replace(alias, player1Object.name);
+    stringTemplateModified = stringTemplateModified.replace(alias, player1Object.name);
   }
 
   for (let alias of player2Aliases) {
-    stringTemplate = stringTemplate.replace(alias, player2Object.name);
+    stringTemplateModified = stringTemplateModified.replace(alias, player2Object.name);
   }
 
-  return stringTemplate;
-}
+  return stringTemplateModified;
+};
 
-function stringReplacePlayerLostHP(stringTemplate, lostHP) {
+const stringReplacePlayerLostHP = (stringTemplate, lostHP) => {
   const stringLostHP = lostHP > 0 ? `-${lostHP}` : lostHP;
 
   return stringTemplate.replace('[lostHP]', stringLostHP);
-}
+};
 
-function stringReplacePlayerTotalHP(stringTemplate, playerObject) {
-  return stringTemplate.replace('[totalHP]', `[${playerObject.hp}/100]`);
-}
+const stringReplacePlayerTotalHP = (stringTemplate, playerObject) => stringTemplate.replace('[totalHP]', `[${playerObject.hp}/100]`);
 
-function addGameStatusLog(gameObject) {
+const addGameStatusLog = (gameObject) => {
   if (gameObject.status === rules.STATUSES.draw) {
     addLog('draw');
   } else {
     addLog('end', gameObject.winner, gameObject.loser);
   }
-}
+
+  return gameObject;
+};
 
 export default { addLog, addGameStatusLog };

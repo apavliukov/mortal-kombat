@@ -1,16 +1,14 @@
-function generateRandomNumber(from, to) {
-  return Math.round(Math.random() * (to - from) + from);
-}
+const generateRandomNumber = (from, to) => Math.round(Math.random() * (to - from) + from);
 
-function getRandomArrayItem(array) {
+const getRandomArrayItem = (array) => {
   if (array.length === 0) {
     return 0;
   }
 
   return array[generateRandomNumber(0, array.length - 1)];
-}
+};
 
-function createDOMElement(tagName, className = '') {
+const createDOMElement = (tagName, className = '') => {
   const $tag = document.createElement(tagName);
 
   if (className) {
@@ -18,9 +16,9 @@ function createDOMElement(tagName, className = '') {
   }
 
   return $tag;
-}
+};
 
-function getFormValues($form) {
+const getFormValues = ($form) => {
   const values = {};
 
   for (let $field of $form) {
@@ -42,9 +40,33 @@ function getFormValues($form) {
   }
 
   return values;
-}
+};
 
-function resetFormValues($form) {
+const setInputDisabled = ($input) => {
+  $input.disabled = true;
+  $input.style.opacity = '0.5';
+  $input.style.cursor = 'not-allowed';
+
+  return $input;
+};
+
+const hideElement = ($element) => {
+  $element.style.display = 'none';
+
+  return $element;
+};
+
+const timestampAddLeadingZero = (time) => time < 10 ? `0${time}` : time;
+
+const getTimestamp = (date = null) => {
+  const dateTimestamp = date ? date : new Date();
+  const hours = dateTimestamp.getHours();
+  const minutes = dateTimestamp.getMinutes();
+
+  return `${timestampAddLeadingZero(hours)}:${timestampAddLeadingZero(minutes)}`;
+};
+
+const resetFormValues = ($form) => {
   for (let $field of $form) {
     const fieldType = $field.type;
 
@@ -58,29 +80,17 @@ function resetFormValues($form) {
       $field.value = '';
     }
   }
-}
 
-function disableFormFields($form) {
+  return $form;
+};
+
+const disableFormFields = ($form) => {
   for (let $field of $form) {
     setInputDisabled($field);
   }
-}
 
-function setInputDisabled($input) {
-  $input.disabled = true;
-  $input.style.opacity = '0.5';
-  $input.style.cursor = 'not-allowed';
-}
-
-function hideElement($element) {
-  $element.style.display = 'none';
-}
-
-function getTimestamp(date = null) {
-  const dateTimestamp = date ? date : new Date();
-
-  return `${dateTimestamp.getHours()}:${dateTimestamp.getMinutes()}`;
-}
+  return $form;
+};
 
 export default {
   generateRandomNumber,
@@ -89,5 +99,6 @@ export default {
   getTimestamp,
   getFormValues,
   resetFormValues,
+  disableFormFields,
   hideElement
 };

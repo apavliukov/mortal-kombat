@@ -36,11 +36,11 @@ const playerObject = new Object({
   }
 });
 
-function getImageUrlByIndex(index) {
+const getImageUrlByIndex = (index) => {
   return playerImages[index] ?? defaultPlayerImage;
-}
+};
 
-function create(playerProperties) {
+const create = (playerProperties) => {
   const { number, name, imgIndex, weapon } = playerProperties;
 
   return Object.create(playerObject, {
@@ -49,6 +49,6 @@ function create(playerProperties) {
     img: { value: getImageUrlByIndex(imgIndex) },
     weapon: { value: weapon }
   });
-}
+};
 
-export default { playerImages, create };
+export default { create };

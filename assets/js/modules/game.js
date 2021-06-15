@@ -36,6 +36,48 @@ const players = [
   player2
 ];
 
+const checkGameOver = ($form, $arenas) => {
+  checkGameStatus();
+
+  if (isGameRunning()) {
+    return false;
+  }
+
+  utils.hideElement($form);
+  chat.addGameStatusLog(gameObject);
+  layout.appendGameStatusLabel($arenas, gameObject);
+  layout.appendReloadButton($arenas);
+
+  return true;
+};
+
+/**
+ * Returns the winning player if the game is over, string if draw or false if the game continues
+ */
+const checkGameStatus = () => {
+  if (player1.hp === 0 && player2.hp !== 0) {
+    gameObject.setStatus(rules.STATUSES.winner);
+    gameObject.setWinner(player2);
+    gameObject.setLoser(player1);
+  }
+
+  if (player2.hp === 0 && player1.hp !== 0) {
+    gameObject.setStatus(rules.STATUSES.winner);
+    gameObject.setWinner(player1);
+    gameObject.setLoser(player2);
+  }
+
+  if (player1.hp === 0 && player2.hp === 0) {
+    gameObject.setStatus(rules.STATUSES.draw);
+  }
+
+  return gameObject;
+};
+
+const isGameRunning = () => {
+  return [rules.STATUSES.start, rules.STATUSES.running].indexOf(gameObject.status) > -1;
+};
+
 function start() {
   setupArena();
 }
@@ -70,46 +112,6 @@ function handleFightFormSubmit($arenas) {
     checkGameOver($form, $arenas);
     gameObject.setStatus(rules.STATUSES.running);
   });
-}
-
-function checkGameOver($form, $arenas) {
-  checkGameStatus();
-
-  if (isGameRunning()) {
-    return false;
-  }
-
-  utils.hideElement($form);
-  chat.addGameStatusLog(gameObject);
-  layout.showGameStatusLabel($arenas, gameObject);
-  layout.showReloadButton($arenas);
-
-  return true;
-}
-
-/**
- * Returns the winning player if the game is over, string if draw or false if the game continues
- */
-function checkGameStatus() {
-  if (player1.hp === 0 && player2.hp !== 0) {
-    gameObject.setStatus(rules.STATUSES.winner);
-    gameObject.setWinner(player2);
-    gameObject.setLoser(player1);
-  }
-
-  if (player2.hp === 0 && player1.hp !== 0) {
-    gameObject.setStatus(rules.STATUSES.winner);
-    gameObject.setWinner(player1);
-    gameObject.setLoser(player2);
-  }
-
-  if (player1.hp === 0 && player2.hp === 0) {
-    gameObject.setStatus(rules.STATUSES.draw);
-  }
-}
-
-function isGameRunning() {
-  return [rules.STATUSES.start, rules.STATUSES.running].indexOf(gameObject.status) > -1;
 }
 
 export default { start };

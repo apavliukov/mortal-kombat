@@ -3,7 +3,7 @@ import rules from './rules.js';
 
 const LABEL_STATUS_DRAW = 'draw';
 
-function createPlayer(playerObject) {
+const createPlayer = (playerObject) => {
   const $playerContainer = utils.createDOMElement('div', `player${playerObject.player}`);
   const $progressBar = utils.createDOMElement('div', 'progressbar');
   const $playerLife = utils.createDOMElement('div', 'life');
@@ -22,15 +22,17 @@ function createPlayer(playerObject) {
   $playerContainer.appendChild($character);
 
   return $playerContainer;
-}
+};
 
-function drawArena($container, players) {
+const drawArena = ($container, players) => {
   for (let player of players) {
     $container.appendChild(createPlayer(player));
   }
-}
 
-function makeReloadButton() {
+  return $container;
+};
+
+const makeReloadButton = () => {
   const $buttonContainer = utils.createDOMElement('div', 'reloadWrap');
   const $button = utils.createDOMElement('button', 'button');
 
@@ -44,29 +46,27 @@ function makeReloadButton() {
   $buttonContainer.appendChild($button);
 
   return $buttonContainer;
-}
+};
 
-function showReloadButton($container) {
+const appendReloadButton = ($container) => {
   $container.appendChild(makeReloadButton());
-}
 
-function makeGameStatusLabelElement(text) {
+  return $container;
+};
+
+const makeGameStatusLabelElement = (text) => {
   const $statusLabel = utils.createDOMElement('div', 'loseTitle');
 
   $statusLabel.innerText = text;
 
   return $statusLabel;
-}
+};
 
-function makePlayerWinsLabel(playerObject) {
-  return makeGameStatusLabelElement(`${playerObject.name} wins!`);
-}
+const makePlayerWinsLabel = (playerObject) => makeGameStatusLabelElement(`${playerObject.name} wins!`);
 
-function makeDrawLabel() {
-  return makeGameStatusLabelElement(LABEL_STATUS_DRAW);
-}
+const makeDrawLabel = () => makeGameStatusLabelElement(LABEL_STATUS_DRAW);
 
-function makeGameStatusLabel(gameObject) {
+const makeGameStatusLabel = (gameObject) => {
   let $gameResultLabel = '';
 
   if (gameObject.status === rules.STATUSES.draw) {
@@ -76,12 +76,14 @@ function makeGameStatusLabel(gameObject) {
   }
 
   return $gameResultLabel;
-}
+};
 
-function showGameStatusLabel($container, gameObject) {
+const appendGameStatusLabel = ($container, gameObject) => {
   const $gameResultLabel = makeGameStatusLabel(gameObject);
 
   $container.appendChild($gameResultLabel);
-}
 
-export default { drawArena, showReloadButton, showGameStatusLabel };
+  return $container;
+};
+
+export default { drawArena, appendReloadButton, appendGameStatusLabel };
