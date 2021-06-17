@@ -1,6 +1,5 @@
-import chat from './chat.js';
-import utils from './utils.js';
-import rules from './rules.js';
+import utils from '../utils';
+import rules from '../rules';
 
 const enemyAttack = () => {
   const hit = getRandomAttackPosition();
@@ -32,22 +31,25 @@ const makeAttackObject = (hit, defence) => {
   };
 };
 
-function handlePlayersAttack(player1, player2, formValues) {
+function handlePlayersAttack(chat, players, formValues) {
+  const { player1, player2 } = players;
   const playerAttackObject = playerAttack(formValues);
   const enemyAttackObject = enemyAttack();
 
   if (playerAttackObject.hit !== enemyAttackObject.defence) {
-    player2.takeDamage(playerAttackObject.value);
-    chat.addLog('hit', player1, player2, playerAttackObject.value);
+    player1.changeState(rules.PLAYER_STATES.attacker);
+    player2.changeState(rules.PLAYER_STATES.defender).takeDamage(playerAttackObject.value);
+    chat.addLog('hit', players, playerAttackObject.value);
   } else {
-    chat.addLog('defence', player1, player2);
+    chat.addLog('defence', players);
   }
 
   if (enemyAttackObject.hit !== playerAttackObject.defence) {
-    player1.takeDamage(enemyAttackObject.value);
-    chat.addLog('hit', player2, player1, enemyAttackObject.value);
+    player2.changeState(rules.PLAYER_STATES.attacker);
+    player1.changeState(rules.PLAYER_STATES.defender).takeDamage(enemyAttackObject.value);
+    chat.addLog('hit', players, enemyAttackObject.value);
   } else {
-    chat.addLog('defence', player2, player1);
+    chat.addLog('defence', players);
   }
 }
 

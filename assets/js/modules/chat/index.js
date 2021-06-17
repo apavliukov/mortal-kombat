@@ -1,7 +1,8 @@
-import utils from './utils.js';
-import rules from './rules.js';
+import utils from '../utils';
+import rules from '../rules';
+import AbstractGameElement from '../abstracts/abstract-game-element';
 
-const logs = {
+const LOGS = {
   start: 'Часы показывали [time], когда [player1] и [player2] бросили вызов друг другу.',
   end: [
     'Результат удара [playerWins]: [playerLose] - труп',
@@ -40,126 +41,142 @@ const logs = {
   ],
   draw: 'Ничья - это тоже победа!'
 };
+const PLAYER_PLACEHOLDERS = [
+  '[player1]',
+  '[player2]',
+  '[playerKick]',
+  '[playerDefence]',
+  '[playerWins]',
+  '[playerLose]',
+];
 
-const $chat = document.querySelector('.chat');
-
-const addLog = (logType, player1Object = null, player2Object = null, lostHP = null) => {
-  if (!$chat) {
-    return null;
+class Chat extends AbstractGameElement {
+  constructor(props) {
+    super(props);
   }
 
-  const logString = prepareLogString(logType, player1Object, player2Object, lostHP);
+  addLog = (logType, players = {}, lostHP = null) => {
+    if (!this.elementExists()) {
+      return null;
+    }
 
-  if (logString.length === 0) {
-    return null;
-  }
+    const logString = this.prepareLogString(logType, players, lostHP);
 
-  $chat.insertAdjacentHTML('afterbegin', `<p>${logString}</p>`);
+    if (logString.length === 0) {
+      return null;
+    }
 
-  return $chat;
-};
+    this.element.insertAdjacentHTML('afterbegin', `<p>${logString}</p>`);
 
-const prepareLogString = (logType, player1Object, player2Object, lostHP) => {
-  const logTypeStrings = logs[logType];
-  let logString = '';
+    return this.element;
+  };
 
-  if (!logTypeStrings) {
+  prepareLogString = (logType, players, lostHP) => {
+    const logTypeStrings = LOGS[logType];
+    let logString = '';
+
+    if (!logTypeStrings) {
+      return logString;
+    }
+
+    const stringTemplate = Array.isArray(logTypeStrings) ? utils.getRandomArrayItem(logTypeStrings) : logTypeStrings;
+    const logObject = { stringTemplate, players, lostHP };
+
+    switch (logType) {
+      case 'start':
+        return this.prepareLogStart(logObject);
+      case 'end':
+        return this.prepareLogEnd(logObject);
+      case 'hit':
+        return this.prepareLogHit(logObject);
+      case 'defence':
+        return this.prepareLogDefence(logObject);
+      case 'draw':
+        return this.prepareLogDraw(stringTemplate);
+    }
+
     return logString;
-  }
+  };
 
-  const stringTemplate = Array.isArray(logTypeStrings) ? utils.getRandomArrayItem(logTypeStrings) : logTypeStrings;
-  const logObject = { stringTemplate, player1Object, player2Object, lostHP };
+  prepareLogStart = (logObject) => {
+    let logString = '';
 
-  switch (logType) {
-    case 'start':
-      return prepareLogStart(logObject);
-    case 'end':
-      return prepareLogEnd(logObject);
-    case 'hit':
-      return prepareLogHit(logObject);
-    case 'defence':
-      return prepareLogDefence(logObject);
-    case 'draw':
-      return prepareLogDraw(stringTemplate);
-  }
+    logString = this.stringReplacePlayerNames(logObject);
+    logString = this.stringReplaceTime(logString);
 
-  return logString;
-};
+    return logString;
+  };
 
-const prepareLogStart = (logObject) => {
-  let logString = '';
+  prepareLogEnd = (logObject) => this.stringReplacePlayerNames(logObject);
 
-  logString = stringReplacePlayerNames(logObject);
-  logString = stringReplaceTime(logString);
+  prepareLogHit = (logObject) => {
+    const { players: { player2 }, lostHP } = logObject;
+    const logTemplateHit = '[time] - [battleText] [lostHP] [totalHP]';
+    let logString = '';
 
-  return logString;
-};
+    logString = logTemplateHit.replace('[battleText]', this.stringReplacePlayerNames(logObject));
+    logString = this.stringReplaceTime(logString);
+    logString = this.stringReplacePlayerLostHP(logString, lostHP);
+    logString = this.stringReplacePlayerTotalHP(logString, player2);
 
-const prepareLogEnd = (logObject) => stringReplacePlayerNames(logObject);
+    return logString;
+  };
 
-const prepareLogHit = (logObject) => {
-  const { player2Object, lostHP } = logObject;
-  const logTemplateHit = '[time] - [battleText] [lostHP] [totalHP]';
-  let logString = '';
+  prepareLogDefence = (logObject) => {
+    const logTemplateDefence = '[time] - [battleText]';
+    let logString = '';
 
-  logString = logTemplateHit.replace('[battleText]', stringReplacePlayerNames(logObject));
-  logString = stringReplaceTime(logString);
-  logString = stringReplacePlayerLostHP(logString, lostHP);
-  logString = stringReplacePlayerTotalHP(logString, player2Object);
+    logString = logTemplateDefence.replace('[battleText]', this.stringReplacePlayerNames(logObject));
+    logString = this.stringReplaceTime(logString);
 
-  return logString;
-};
+    return logString;
+  };
 
-const prepareLogDefence = (logObject) => {
-  const logTemplateDefence = '[time] - [battleText]';
-  let logString = '';
+  prepareLogDraw = (stringTemplate) => stringTemplate;
 
-  logString = logTemplateDefence.replace('[battleText]', stringReplacePlayerNames(logObject));
-  logString = stringReplaceTime(logString);
+  stringReplaceTime = (stringTemplate) => stringTemplate.replace('[time]', utils.getTimestamp());
 
-  return logString;
-};
+  stringReplacePlayerNames = (logObject) => {
+    const { stringTemplate, players } = logObject;
+    let stringTemplateModified = stringTemplate;
 
-const prepareLogDraw = (stringTemplate) => stringTemplate;
+    for (let placeholder of PLAYER_PLACEHOLDERS) {
+      let playerPlaceholder = null;
 
-const stringReplaceTime = (stringTemplate) => stringTemplate.replace('[time]', utils.getTimestamp());
+      for (const [playerKey, player] of Object.entries(players)) {
+        if (placeholder === '[player1]' && player.number === 1 ||
+          placeholder === '[player2]' && player.number === 2 ||
+          placeholder === '[playerKick]' && player.state === rules.PLAYER_STATES.attacker ||
+          placeholder === '[playerDefence]' && player.state === rules.PLAYER_STATES.defender ||
+          placeholder === '[playerWins]' && player.state === rules.PLAYER_STATES.winner ||
+          placeholder === '[playerLose]' && player.state === rules.PLAYER_STATES.loser) {
+          playerPlaceholder = player;
+        }
+      }
 
-/*
-  We consider that the first player is always a hitter/winner, the second is a defender/loser
- */
-const stringReplacePlayerNames = (logObject) => {
-  const { stringTemplate, player1Object, player2Object } = logObject;
-  const player1Aliases = ['[player1]', '[playerWins]', '[playerKick]'];
-  const player2Aliases = ['[player2]', '[playerLose]', '[playerDefence]'];
-  let stringTemplateModified = stringTemplate;
+      if (playerPlaceholder) {
+        stringTemplateModified = stringTemplateModified.replace(placeholder, playerPlaceholder.name);
+      }
+    }
 
-  for (let alias of player1Aliases) {
-    stringTemplateModified = stringTemplateModified.replace(alias, player1Object.name);
-  }
+    return stringTemplateModified;
+  };
 
-  for (let alias of player2Aliases) {
-    stringTemplateModified = stringTemplateModified.replace(alias, player2Object.name);
-  }
+  stringReplacePlayerLostHP = (stringTemplate, lostHP) => {
+    const stringLostHP = lostHP > 0 ? `-${lostHP}` : lostHP;
 
-  return stringTemplateModified;
-};
+    return stringTemplate.replace('[lostHP]', stringLostHP);
+  };
 
-const stringReplacePlayerLostHP = (stringTemplate, lostHP) => {
-  const stringLostHP = lostHP > 0 ? `-${lostHP}` : lostHP;
+  stringReplacePlayerTotalHP = (stringTemplate, player) => stringTemplate.replace('[totalHP]', `[${player.hp}/100]`);
 
-  return stringTemplate.replace('[lostHP]', stringLostHP);
-};
+  addGameStatusLog = ({ status, players }) => {
+    if (status === rules.STATUSES.draw) {
+      this.addLog('draw');
+    } else {
+      this.addLog('end', players);
+    }
+  };
+}
 
-const stringReplacePlayerTotalHP = (stringTemplate, playerObject) => stringTemplate.replace('[totalHP]', `[${playerObject.hp}/100]`);
-
-const addGameStatusLog = (gameObject) => {
-  if (gameObject.status === rules.STATUSES.draw) {
-    addLog('draw');
-  } else {
-    addLog('end', gameObject.winner, gameObject.loser);
-  }
-
-  return gameObject;
-};
-
-export default { addLog, addGameStatusLog };
+export default Chat;

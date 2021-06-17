@@ -4,6 +4,12 @@ const STATUSES = {
   winner: 'winner',
   draw: 'draw',
 };
+const PLAYER_STATES = {
+  attacker: 'attacker',
+  defender: 'defender',
+  winner: 'winner',
+  loser: 'loser',
+};
 const HIT = {
   head: 30,
   body: 25,
@@ -15,4 +21,4 @@ const ATTACK = [
   'foot'
 ];
 
-export default { STATUSES, HIT, ATTACK };
+export default { STATUSES, PLAYER_STATES, HIT, ATTACK };
