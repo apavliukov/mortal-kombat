@@ -1,6 +1,6 @@
 class AbstractRequest {
-  constructor(props) {
-    this.url = props.url;
+  constructor(props = {}) {
+    this.url = props.url ?? null;
     this.method = props.method ?? 'GET';
     this.headers = props.headers ?? {};
     this.body = props.body ?? {};

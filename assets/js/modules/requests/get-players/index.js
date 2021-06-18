@@ -4,10 +4,9 @@ const URL_ALL_PLAYERS = 'https://reactmarathon-api.herokuapp.com/api/mk/players'
 
 class GetPlayersRequest extends AbstractRequest {
     constructor(props) {
-      super({
-        ...props,
-        url: URL_ALL_PLAYERS
-      });
+      super(props);
+
+      this.url = URL_ALL_PLAYERS;
     }
 }
 

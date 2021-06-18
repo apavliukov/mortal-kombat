@@ -7,7 +7,7 @@ import Chat from '../chat';
 import GetPlayersRequest from '../requests/get-players';
 
 class Game {
-  constructor(props) {
+  constructor(props = {}) {
     this.status = rules.STATUSES.start;
     this.players = {};
     this.winner = null;
@@ -142,12 +142,12 @@ class Game {
       return null;
     }
 
-    $formFight.addEventListener('submit', (event) => {
+    $formFight.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const formValues = utils.getFormValues($formFight);
 
-      battle.handleBattleRound(this.chat, this.players, formValues);
+      await battle.handleBattleRound(this.chat, this.players, formValues);
       utils.resetFormValues($formFight);
       this.checkGameOver($formFight);
       this.changeStatus(rules.STATUSES.running);
