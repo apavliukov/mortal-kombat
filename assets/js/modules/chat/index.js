@@ -55,12 +55,12 @@ class Chat extends AbstractGameElement {
     super(props);
   }
 
-  addLog = (logType, players = {}, lostHP = null) => {
+  addLog = (logType, player1, player2, lostHP = null) => {
     if (!this.elementExists()) {
       return null;
     }
 
-    const logString = this.prepareLogString(logType, players, lostHP);
+    const logString = this.prepareLogString(logType, player1, player2, lostHP);
 
     if (logString.length === 0) {
       return null;
@@ -71,7 +71,7 @@ class Chat extends AbstractGameElement {
     return this.element;
   };
 
-  prepareLogString = (logType, players, lostHP) => {
+  prepareLogString = (logType, player1, player2, lostHP) => {
     const logTypeStrings = LOGS[logType];
     let logString = '';
 
@@ -80,7 +80,7 @@ class Chat extends AbstractGameElement {
     }
 
     const stringTemplate = Array.isArray(logTypeStrings) ? utils.getRandomArrayItem(logTypeStrings) : logTypeStrings;
-    const logObject = { stringTemplate, players, lostHP };
+    const logObject = { stringTemplate, player1, player2, lostHP };
 
     switch (logType) {
       case 'start':
@@ -110,7 +110,7 @@ class Chat extends AbstractGameElement {
   prepareLogEnd = (logObject) => this.stringReplacePlayerNames(logObject);
 
   prepareLogHit = (logObject) => {
-    const { players: { player2 }, lostHP } = logObject;
+    const { player2, lostHP } = logObject;
     const logTemplateHit = '[time] - [battleText] [lostHP] [totalHP]';
     let logString = '';
 
@@ -137,26 +137,17 @@ class Chat extends AbstractGameElement {
   stringReplaceTime = (stringTemplate) => stringTemplate.replace('[time]', utils.getTimestamp());
 
   stringReplacePlayerNames = (logObject) => {
-    const { stringTemplate, players } = logObject;
+    const { stringTemplate, player1, player2 } = logObject;
+    const player1Aliases = ['[player1]', '[playerWins]', '[playerKick]'];
+    const player2Aliases = ['[player2]', '[playerLose]', '[playerDefence]'];
     let stringTemplateModified = stringTemplate;
 
-    for (let placeholder of PLAYER_PLACEHOLDERS) {
-      let playerPlaceholder = null;
+    for (let alias of player1Aliases) {
+      stringTemplateModified = stringTemplateModified.replace(alias, player1.name);
+    }
 
-      for (const [playerKey, player] of Object.entries(players)) {
-        if (placeholder === '[player1]' && player.number === 1 ||
-          placeholder === '[player2]' && player.number === 2 ||
-          placeholder === '[playerKick]' && player.state === rules.PLAYER_STATES.attacker ||
-          placeholder === '[playerDefence]' && player.state === rules.PLAYER_STATES.defender ||
-          placeholder === '[playerWins]' && player.state === rules.PLAYER_STATES.winner ||
-          placeholder === '[playerLose]' && player.state === rules.PLAYER_STATES.loser) {
-          playerPlaceholder = player;
-        }
-      }
-
-      if (playerPlaceholder) {
-        stringTemplateModified = stringTemplateModified.replace(placeholder, playerPlaceholder.name);
-      }
+    for (let alias of player2Aliases) {
+      stringTemplateModified = stringTemplateModified.replace(alias, player2.name);
     }
 
     return stringTemplateModified;
@@ -170,11 +161,11 @@ class Chat extends AbstractGameElement {
 
   stringReplacePlayerTotalHP = (stringTemplate, player) => stringTemplate.replace('[totalHP]', `[${player.hp}/100]`);
 
-  addGameStatusLog = ({ status, players }) => {
+  addGameStatusLog = ({ status, players: { player1, player2 } }) => {
     if (status === rules.STATUSES.draw) {
       this.addLog('draw');
     } else {
-      this.addLog('end', players);
+      this.addLog('end', player1, player2);
     }
   };
 }

@@ -17,6 +17,7 @@ class Player {
     this.weapon = props.weapon;
     this.selector = `.player${this.number}`;
     this.state = null;
+    this.roundAttack = null;
   }
 
   attack = () => {
@@ -54,6 +55,12 @@ class Player {
 
   changeState = (state) => {
     this.state = state;
+
+    return this;
+  };
+
+  changeRoundAttack = (attackObject) => {
+    this.roundAttack = attackObject;
 
     return this;
   };

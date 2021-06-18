@@ -31,27 +31,23 @@ const makeAttackObject = (hit, defence) => {
   };
 };
 
-function handlePlayersAttack(chat, players, formValues) {
-  const { player1, player2 } = players;
-  const playerAttackObject = playerAttack(formValues);
-  const enemyAttackObject = enemyAttack();
+function handleBattleRound(chat, { player1, player2 }, formValues) {
+  player1.changeRoundAttack(playerAttack(formValues));
+  player2.changeRoundAttack(enemyAttack());
 
-  if (playerAttackObject.hit !== enemyAttackObject.defence) {
+  handlePlayerAttack(chat, player1, player2);
+  handlePlayerAttack(chat, player2, player1);
+}
+
+function handlePlayerAttack(chat, player1, player2) {
+  if (player1.roundAttack.hit !== player2.roundAttack.defence) {
     player1.changeState(rules.PLAYER_STATES.attacker);
-    player2.changeState(rules.PLAYER_STATES.defender).takeDamage(playerAttackObject.value);
-    chat.addLog('hit', players, playerAttackObject.value);
+    player2.changeState(rules.PLAYER_STATES.defender).takeDamage(player1.roundAttack.value);
+    chat.addLog('hit', player1, player2, player1.roundAttack.value);
   } else {
-    chat.addLog('defence', players);
-  }
-
-  if (enemyAttackObject.hit !== playerAttackObject.defence) {
-    player2.changeState(rules.PLAYER_STATES.attacker);
-    player1.changeState(rules.PLAYER_STATES.defender).takeDamage(enemyAttackObject.value);
-    chat.addLog('hit', players, enemyAttackObject.value);
-  } else {
-    chat.addLog('defence', players);
+    chat.addLog('defence', player1, player2);
   }
 }
 
-export default { handlePlayersAttack };
+export default { handleBattleRound };
 

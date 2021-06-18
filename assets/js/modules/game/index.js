@@ -80,7 +80,7 @@ class Game {
     }
 
     this.arena.drawArena(this.players);
-    this.chat.addLog('start', this.players);
+    this.chat.addLog('start', this.players.player1, this.players.player2);
     this.handleFightFormSubmit(this.arena);
 
     return this;
@@ -142,7 +142,7 @@ class Game {
 
       const formValues = utils.getFormValues($formFight);
 
-      battle.handlePlayersAttack(this.chat, this.players, formValues);
+      battle.handleBattleRound(this.chat, this.players, formValues);
       utils.resetFormValues($formFight);
       this.checkGameOver($formFight);
       this.changeStatus(rules.STATUSES.running);
