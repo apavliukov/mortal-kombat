@@ -4,6 +4,7 @@ import battle from '../battle';
 import Player from '../player';
 import Arena from '../arena';
 import Chat from '../chat';
+import GetPlayersRequest from '../requests/get-players';
 
 class Game {
   constructor(props) {
@@ -15,8 +16,8 @@ class Game {
     this.chat = null;
   }
 
-  init = () => {
-    this.createPlayers();
+  init = async () => {
+    await this.createPlayers();
     this.arena = new Arena({
       selector: '.arenas'
     });
@@ -27,8 +28,8 @@ class Game {
     return this;
   };
 
-  start = () => {
-    this.init();
+  start = async () => {
+    await this.init();
     this.setupArena();
 
     return this;
@@ -52,17 +53,21 @@ class Game {
     return this;
   };
 
-  createPlayers = () => {
+  createPlayers = async () => {
+    const players = await (new GetPlayersRequest()).fetch();
+
+    if (!Array.isArray(players) || players.length === 0) {
+      throw Error('Something went wrong with getting the players list');
+    }
+
     const player1 = new Player({
+      ...utils.getRandomArrayItem(players),
       number: 1,
-      name: 'Sub-Zero',
-      imgIndex: 'sub-zero',
       weapon: ['sword', 'axe', 'dagger'],
     });
     const player2 = new Player({
+      ...utils.getRandomArrayItem(players),
       number: 2,
-      name: 'Sonya Blade',
-      imgIndex: 'sonya-blade',
       weapon: ['hammer', 'knife', 'bow'],
     });
 

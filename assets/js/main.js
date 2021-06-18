@@ -1,7 +1,7 @@
 import Game from './modules/game';
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async () => {
   const game = new Game();
 
-  game.start();
+  await game.start();
 });

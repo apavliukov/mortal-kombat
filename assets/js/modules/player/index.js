@@ -1,19 +1,9 @@
-const playerImages = {
-  'sub-zero': 'http://reactmarathon-api.herokuapp.com/assets/subzero.gif',
-  'sonya-blade': 'http://reactmarathon-api.herokuapp.com/assets/sonya.gif',
-};
-const defaultPlayerImage = playerImages['sub-zero'];
-
-const getImageUrlByIndex = (index) => {
-  return playerImages[index] ?? defaultPlayerImage;
-};
-
 class Player {
   constructor(props) {
     this.number = props.number;
     this.name = props.name;
     this.hp = 100;
-    this.img = getImageUrlByIndex(props.imgIndex);
+    this.img = props.img;
     this.weapon = props.weapon;
     this.selector = `.player${this.number}`;
     this.state = null;
