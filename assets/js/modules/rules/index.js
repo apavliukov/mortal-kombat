@@ -11,4 +11,9 @@ const PLAYER_STATES = {
   loser: 'loser',
 };
 
-export default { STATUSES, PLAYER_STATES };
+const FILENAME_FIGHTER_SELECTOR = 'index.html';
+const FILENAME_BATTLE = 'battle.html';
+
+const PLAYER_FIGHTER_STORAGE_KEY = 'player1';
+
+export default { STATUSES, PLAYER_STATES, FILENAME_BATTLE, FILENAME_FIGHTER_SELECTOR, PLAYER_FIGHTER_STORAGE_KEY };

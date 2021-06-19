@@ -4,7 +4,7 @@ import battle from '../battle';
 import Player from '../player';
 import Arena from '../arena';
 import Chat from '../chat';
-import GetPlayersRequest from '../requests/get-players';
+import GetRandomFighterRequest from '../requests/get-random-fighter';
 
 class Game {
   constructor(props = {}) {
@@ -54,19 +54,25 @@ class Game {
   };
 
   createPlayers = async () => {
-    const players = await (new GetPlayersRequest()).fetch();
+    const selectedPlayer1 = battle.getPlayerFighter();
 
-    if (!Array.isArray(players) || players.length === 0) {
-      throw Error('Something went wrong with getting the players list');
+    if (!selectedPlayer1) {
+      utils.redirectToFile(rules.FILENAME_FIGHTER_SELECTOR);
+    }
+
+    const randomFighter = await (new GetRandomFighterRequest()).fetch();
+
+    if (typeof randomFighter !== 'object') {
+      throw Error('Something went wrong with loading the enemy fighter');
     }
 
     const player1 = new Player({
-      ...utils.getRandomArrayItem(players),
+      ...selectedPlayer1,
       number: 1,
       weapon: ['sword', 'axe', 'dagger'],
     });
     const player2 = new Player({
-      ...utils.getRandomArrayItem(players),
+      ...randomFighter,
       number: 2,
       weapon: ['hammer', 'knife', 'bow'],
     });
@@ -75,6 +81,8 @@ class Game {
       player1,
       player2
     };
+
+    battle.resetPlayerFighter();
 
     return this;
   };

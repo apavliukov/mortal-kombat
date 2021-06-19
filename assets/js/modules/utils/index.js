@@ -12,7 +12,13 @@ const createDOMElement = (tagName, className = '') => {
   const $tag = document.createElement(tagName);
 
   if (className) {
-    $tag.classList.add(className);
+    if (Array.isArray(className)) {
+      className.forEach(item => {
+        $tag.classList.add(item);
+      });
+    } else {
+      $tag.classList.add(className);
+    }
   }
 
   return $tag;
@@ -92,6 +98,20 @@ const disableFormFields = ($form) => {
   return $form;
 };
 
+const removeFilenameFromUrl = (url) => {
+  const parsedUrl = url.split('/');
+
+  parsedUrl.pop();
+
+  return parsedUrl.join('/');
+};
+
+const redirectToFile = (fileName) => {
+  const locationPath = removeFilenameFromUrl(window.location.href);
+
+  window.location.href = `${locationPath}/${fileName}`;
+};
+
 export default {
   generateRandomNumber,
   getRandomArrayItem,
@@ -100,5 +120,6 @@ export default {
   getFormValues,
   resetFormValues,
   disableFormFields,
-  hideElement
+  hideElement,
+  redirectToFile
 };

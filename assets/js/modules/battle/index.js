@@ -21,6 +21,16 @@ const fetchPlayersDamage = async (playerAttack) => {
   return playersDamage;
 };
 
+const resetPlayerFighter = () => {
+  localStorage.removeItem(rules.PLAYER_FIGHTER_STORAGE_KEY);
+};
+
+const storePlayerFighter = (fighter) => {
+  localStorage.setItem(rules.PLAYER_FIGHTER_STORAGE_KEY, JSON.stringify(fighter));
+};
+
+const getPlayerFighter = () => JSON.parse(localStorage.getItem(rules.PLAYER_FIGHTER_STORAGE_KEY));
+
 async function handleBattleRound(chat, { player1, player2 }, formValues) {
   const playerAttack = preparePlayerAttack(formValues);
   const playersDamage = await fetchPlayersDamage(playerAttack);
@@ -42,5 +52,5 @@ function handlePlayerAttack(chat, player1, player2) {
   }
 }
 
-export default { handleBattleRound };
+export default { handleBattleRound, resetPlayerFighter, storePlayerFighter, getPlayerFighter };
 
