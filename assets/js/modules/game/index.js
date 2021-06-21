@@ -1,10 +1,10 @@
-import utils from '../utils';
-import rules from '../rules';
-import battle from '../battle';
-import Player from '../player';
-import Arena from '../arena';
-import Chat from '../chat';
-import GetRandomFighterRequest from '../requests/get-random-fighter';
+import utils from '../utils/index.js';
+import rules from '../rules/index.js';
+import battle from '../battle/index.js';
+import Player from '../player/index.js';
+import Arena from '../arena/index.js';
+import Chat from '../chat/index.js';
+import GetRandomFighterRequest from '../requests/get-random-fighter/index.js';
 
 class Game {
   constructor(props = {}) {

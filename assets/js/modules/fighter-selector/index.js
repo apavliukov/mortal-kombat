@@ -1,8 +1,8 @@
-import utils from '../utils';
-import layout from '../layout';
-import battle from '../battle';
-import rules from '../rules';
-import LoadFightersRequest from '../requests/load-fighters';
+import utils from '../utils/index.js';
+import layout from '../layout/index.js';
+import battle from '../battle/index.js';
+import rules from '../rules/index.js';
+import LoadFightersRequest from '../requests/load-fighters/index.js';
 
 class FighterSelector {
   constructor(props) {

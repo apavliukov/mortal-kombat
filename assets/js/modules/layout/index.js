@@ -1,5 +1,5 @@
-import utils from '../utils';
-import rules from '../rules';
+import utils from '../utils/index.js';
+import rules from '../rules/index.js';
 
 const LABEL_STATUS_DRAW = 'draw';
 

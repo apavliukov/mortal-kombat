@@ -1,5 +1,5 @@
-import rules from '../rules';
-import PlayersDamageRequest from '../requests/players-damage';
+import rules from '../rules/index.js';
+import PlayersDamageRequest from '../requests/players-damage/index.js';
 
 const preparePlayerAttack = (formValues) => {
   const hit = formValues.hit !== undefined ? formValues.hit : 0;

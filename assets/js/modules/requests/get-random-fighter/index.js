@@ -1,4 +1,4 @@
-import AbstractRequest from '../../abstracts/abstract-request';
+import AbstractRequest from '../../abstracts/abstract-request/index.js';
 
 const URL_RANDOM_FIGHTER = 'https://reactmarathon-api.herokuapp.com/api/mk/player/choose';
 

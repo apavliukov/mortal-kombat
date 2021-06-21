@@ -1,5 +1,5 @@
-import layout from '../layout';
-import AbstractGameElement from '../abstracts/abstract-game-element';
+import layout from '../layout/index.js';
+import AbstractGameElement from '../abstracts/abstract-game-element/index.js';
 
 class Arena extends AbstractGameElement {
   constructor(props) {

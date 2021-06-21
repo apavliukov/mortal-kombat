@@ -1,6 +1,6 @@
-import utils from '../utils';
-import rules from '../rules';
-import AbstractGameElement from '../abstracts/abstract-game-element';
+import utils from '../utils/index.js';
+import rules from '../rules/index.js';
+import AbstractGameElement from '../abstracts/abstract-game-element/index.js';
 
 const LOGS = {
   start: 'Часы показывали [time], когда [player1] и [player2] бросили вызов друг другу.',
