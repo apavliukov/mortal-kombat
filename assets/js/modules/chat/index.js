@@ -161,11 +161,11 @@ class Chat extends AbstractGameElement {
 
   stringReplacePlayerTotalHP = (stringTemplate, player) => stringTemplate.replace('[totalHP]', `[${player.hp}/100]`);
 
-  addGameStatusLog = ({ status, players: { player1, player2 } }) => {
+  addGameStatusLog = ({ status, winner, loser }) => {
     if (status === rules.STATUSES.draw) {
       this.addLog('draw');
     } else {
-      this.addLog('end', player1, player2);
+      this.addLog('end', winner, loser);
     }
   };
 }

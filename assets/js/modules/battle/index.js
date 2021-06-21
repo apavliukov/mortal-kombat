@@ -1,39 +1,42 @@
-import utils from '../utils';
 import rules from '../rules';
+import PlayersDamageRequest from '../requests/players-damage';
 
-const enemyAttack = () => {
-  const hit = getRandomAttackPosition();
-  const defence = getRandomAttackPosition();
-
-  return makeAttackObject(hit, defence);
-};
-
-const playerAttack = (formValues) => {
+const preparePlayerAttack = (formValues) => {
   const hit = formValues.hit !== undefined ? formValues.hit : 0;
   const defence = formValues.defence !== undefined ? formValues.defence : 0;
 
-  return makeAttackObject(hit, defence);
-};
-
-const getRandomAttackPosition = () => {
-  const randomIndex = utils.generateRandomNumber(0, rules.ATTACK.length - 1);
-
-  return rules.ATTACK[randomIndex];
-};
-
-const makeAttackObject = (hit, defence) => {
-  const hitValue = rules.HIT[hit] ? utils.generateRandomNumber(1, rules.HIT[hit]) : 0;
-
   return {
-    value: hitValue,
     hit,
     defence
   };
 };
 
-function handleBattleRound(chat, { player1, player2 }, formValues) {
-  player1.changeRoundAttack(playerAttack(formValues));
-  player2.changeRoundAttack(enemyAttack());
+const fetchPlayersDamage = async (playerAttack) => {
+  const playersDamage = await (new PlayersDamageRequest(playerAttack)).fetch();
+
+  if (typeof playersDamage !== 'object') {
+    throw Error('Cannot fetch players damage');
+  }
+
+  return playersDamage;
+};
+
+const resetPlayerFighter = () => {
+  localStorage.removeItem(rules.PLAYER_FIGHTER_STORAGE_KEY);
+};
+
+const storePlayerFighter = (fighter) => {
+  localStorage.setItem(rules.PLAYER_FIGHTER_STORAGE_KEY, JSON.stringify(fighter));
+};
+
+const getPlayerFighter = () => JSON.parse(localStorage.getItem(rules.PLAYER_FIGHTER_STORAGE_KEY));
+
+async function handleBattleRound(chat, { player1, player2 }, formValues) {
+  const playerAttack = preparePlayerAttack(formValues);
+  const playersDamage = await fetchPlayersDamage(playerAttack);
+
+  player1.changeRoundAttack(playersDamage.player1);
+  player2.changeRoundAttack(playersDamage.player2);
 
   handlePlayerAttack(chat, player1, player2);
   handlePlayerAttack(chat, player2, player1);
@@ -49,5 +52,5 @@ function handlePlayerAttack(chat, player1, player2) {
   }
 }
 
-export default { handleBattleRound };
+export default { handleBattleRound, resetPlayerFighter, storePlayerFighter, getPlayerFighter };
 

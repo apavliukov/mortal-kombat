@@ -3,6 +3,8 @@ import rules from '../rules';
 
 const LABEL_STATUS_DRAW = 'draw';
 
+const DEFAULT_AVATAR_URL = 'https://reactmarathon-api.herokuapp.com/assets/mk/avatar/11.png';
+
 const makePlayerElement = ({ name, hp, img, selector }) => {
   const $playerContainer = utils.createDOMElement('div', `${selector.replace('.', '')}`);
   const $progressBar = utils.createDOMElement('div', 'progressbar');
@@ -32,7 +34,7 @@ const makeReloadButton = () => {
   $button.setAttribute('data-action', 'game-reload');
 
   $button.addEventListener('click', function () {
-    window.location.reload();
+    utils.redirectToFile(rules.FILENAME_FIGHTER_SELECTOR);
   });
 
   $buttonContainer.appendChild($button);
@@ -64,4 +66,27 @@ const makeGameStatusLabel = ({ status, winner }) => {
   return $gameResultLabel;
 };
 
-export default { makePlayerElement, makeReloadButton, makeGameStatusLabel };
+const makeEmptyFighterElement = () => {
+  const element = utils.createDOMElement('div', ['character', 'div11', 'disabled']);
+  const img = utils.createDOMElement('img');
+
+  img.src = DEFAULT_AVATAR_URL;
+
+  element.appendChild(img);
+
+  return element;
+};
+
+const makeFighterElement = (fighter) => {
+  const element = utils.createDOMElement('div', ['character', `div${fighter.id}`]);
+  const img = utils.createDOMElement('img');
+
+  img.src = fighter.avatar;
+  img.alt = fighter.name;
+
+  element.appendChild(img);
+
+  return element;
+}
+
+export default { makePlayerElement, makeReloadButton, makeGameStatusLabel, makeEmptyFighterElement, makeFighterElement };

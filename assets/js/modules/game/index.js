@@ -4,9 +4,10 @@ import battle from '../battle';
 import Player from '../player';
 import Arena from '../arena';
 import Chat from '../chat';
+import GetRandomFighterRequest from '../requests/get-random-fighter';
 
 class Game {
-  constructor(props) {
+  constructor(props = {}) {
     this.status = rules.STATUSES.start;
     this.players = {};
     this.winner = null;
@@ -15,8 +16,8 @@ class Game {
     this.chat = null;
   }
 
-  init = () => {
-    this.createPlayers();
+  init = async () => {
+    await this.createPlayers();
     this.arena = new Arena({
       selector: '.arenas'
     });
@@ -27,8 +28,8 @@ class Game {
     return this;
   };
 
-  start = () => {
-    this.init();
+  start = async () => {
+    await this.init();
     this.setupArena();
 
     return this;
@@ -52,17 +53,27 @@ class Game {
     return this;
   };
 
-  createPlayers = () => {
+  createPlayers = async () => {
+    const selectedPlayer1 = battle.getPlayerFighter();
+
+    if (!selectedPlayer1) {
+      utils.redirectToFile(rules.FILENAME_FIGHTER_SELECTOR);
+    }
+
+    const randomFighter = await (new GetRandomFighterRequest()).fetch();
+
+    if (typeof randomFighter !== 'object') {
+      throw Error('Something went wrong with loading the enemy fighter');
+    }
+
     const player1 = new Player({
+      ...selectedPlayer1,
       number: 1,
-      name: 'Sub-Zero',
-      imgIndex: 'sub-zero',
       weapon: ['sword', 'axe', 'dagger'],
     });
     const player2 = new Player({
+      ...randomFighter,
       number: 2,
-      name: 'Sonya Blade',
-      imgIndex: 'sonya-blade',
       weapon: ['hammer', 'knife', 'bow'],
     });
 
@@ -70,6 +81,8 @@ class Game {
       player1,
       player2
     };
+
+    battle.resetPlayerFighter();
 
     return this;
   };
@@ -137,12 +150,12 @@ class Game {
       return null;
     }
 
-    $formFight.addEventListener('submit', (event) => {
+    $formFight.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const formValues = utils.getFormValues($formFight);
 
-      battle.handleBattleRound(this.chat, this.players, formValues);
+      await battle.handleBattleRound(this.chat, this.players, formValues);
       utils.resetFormValues($formFight);
       this.checkGameOver($formFight);
       this.changeStatus(rules.STATUSES.running);
